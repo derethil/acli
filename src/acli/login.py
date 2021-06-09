@@ -23,14 +23,13 @@ def set(username: str, password: str, service_name="aggietime"):
     """Sets your password using a keyring backend of your choice."""
     keyring.set_password(service_name, "username", username)  # Set username
     keyring.set_password(service_name, username, password)  # Set password
-    display()
+    display(service_name)
 
 
 @login.subcommand()
 def display(service_name="aggietime"):
     """Displays and checks if your current login information is correct."""
-    username = keyring.get_password(service_name, "username")
-    password: Optional[str] = keyring.get_password(service_name, username)
+    username, password = get_login_info()
 
     if password == "" or password == None:
         show_login_info(service_name, username, f"{fg.RED}No password set")
@@ -55,7 +54,7 @@ def check_login(username: str, password: str) -> bool:
 
 
 def show_login_info(
-    service_name: str, username: str, password: str, checked: Optional[bool] = None
+    service_name: str, username: str, password: str, success: Optional[bool] = None
 ):
     rows = [
         ["Service Name", service_name],
@@ -63,9 +62,9 @@ def show_login_info(
         ["Password", password],
     ]
 
-    if checked is not None:
-        check_color = fg.GREEN if checked else fg.RED
-        rows.append(["Successful Login", f"{check_color}{checked}"])
+    if success is not None:
+        check_color = fg.GREEN if success else fg.RED
+        rows.append(["Successful Login", f"{check_color}{success}"])
 
     def format_cell(content, column: Column, row_idx, column_idx):
         return (
@@ -90,14 +89,13 @@ def get_login_info(service_name="aggietime"):
 
 def login_to_session(session: requests.Session) -> Tuple[Session, Response]:
     usernmame, password = get_login_info()
-    login_success = check_login(usernmame, password)
-
-    if not login_success:
-        raise ExecutionError("Could not log in to Aggietime successfully")
 
     login_response = session.post(
         url=f"{BASE_URL}/j_spring_security_check",
         data={"j_username": usernmame, "j_password": password},
     )
+
+    if not login_response.url == f"{BASE_URL}/dashboard":
+        raise ExecutionError("Incorrect username or password to Aggietime!")
 
     return session, login_response
