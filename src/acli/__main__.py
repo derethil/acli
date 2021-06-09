@@ -22,11 +22,13 @@ def log(total_hours: str, project_name=None):
 
     parsed: Dict[str, str] = parse_values(
         login_response.content,
-        "SYNCHRONIZER_TOKEN",
-        "SYNCHRONIZER_URI",
-        "posId",
-        "HoursThisWeek",
-        "entry-count",
+        to_parse=[
+            "SYNCHRONIZER_TOKEN",
+            "SYNCHRONIZER_URI",
+            "posId",
+            "HoursThisWeek",
+            "entry-count",
+        ],
     )
 
     now = datetime.now()
