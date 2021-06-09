@@ -10,7 +10,7 @@ from arc.present.data import justifications
 from arc.color import fg
 from arc.errors import ExecutionError
 
-from config import BASE_URL
+from .config import BASE_URL
 
 login = namespace("login")
 

@@ -1,3 +1,4 @@
+#!/bin/python
 from typing import Dict
 from datetime import datetime
 
@@ -6,9 +7,9 @@ import requests
 from arc import CLI
 from arc import CommandType as ct
 
-from login import login, login_to_session
-from parser import parse_values
-from config import BASE_URL
+from .login import login, login_to_session
+from .parser import parse_values
+from .config import BASE_URL
 
 cli = CLI()
 cli.install_command(login)
@@ -50,5 +51,5 @@ def log(total_hours: str, project_name=None):
     )
 
 
-if __name__ == "__main__":
+def main():
     cli()
