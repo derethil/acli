@@ -1,44 +1,53 @@
+from typing import Dict
+from datetime import datetime
+
 import requests
-import keyring
+
 from arc import CLI
-from arc.color import fg, bg, effects
-from arc.present import Table
-from bs4 import BeautifulSoup
+from arc import CommandType as ct
 
+from login import login, login_to_session
+from parser import parse_values
 from config import BASE_URL
-from login import login
-
-# session = requests.Session()
-
-# login_res = session.post(
-#     url=f"{BASE_URL}/j_spring_security_check",
-#     data={"j_username": "", "j_password": ""},
-# )
-
-# soup = BeautifulSoup(login_res.content, "html.parser")
-
-# post_res = session.post(
-#     url=f"https://aggietime.usu.edu/dashboard/shift/save?startDate=Tue+Jun+01+00%3A00%3A00+MDT+2021",
-#     data={
-#         "SYNCHRONIZER_TOKEN": soup.find(id="SYNCHRONIZER_TOKEN").get("value"),
-#         "SYNCHRONIZER_URI": soup.find(id="SYNCHRONIZER_URI").get("value"),
-#         "posId": soup.find(id="posId").get("value"),
-#         "HoursThisWeek": soup.find(id="HoursThisWeek").get("value"),
-#         "entryCount": soup.find(id="entry-count").get("value"),
-#         "entries[0].timeHolder": "Tue, 08 Jun 2021",
-#         "entries[0].totalHours": 8,
-#         "entries[0].projectName": "test",
-#     },
-# )
 
 cli = CLI()
-
 cli.install_command(login)
 
 
-@cli.base()
-def base():
-    print("You called base!")
+@cli.subcommand(command_type=ct.POSITIONAL)
+def log(total_hours: str, project_name=None):
+    """Submits a single time log to Aggietime based on current date."""
+    session, login_response = login_to_session(requests.Session())
+
+    parsed: Dict[str, str] = parse_values(
+        login_response.content,
+        "SYNCHRONIZER_TOKEN",
+        "SYNCHRONIZER_URI",
+        "posId",
+        "HoursThisWeek",
+        "entry-count",
+    )
+
+    now = datetime.now()
+    time_holder = now.strftime("%a, %d %b %Y")
+
+    data: Dict[str, str] = {
+        "SYNCHRONIZER_TOKEN": parsed["SYNCHRONIZER_TOKEN"],
+        "SYNCHRONIZER_URI": parsed["SYNCHRONIZER_URI"],
+        "posId": parsed["posId"],
+        "HoursThisWeek": parsed["HoursThisWeek"],
+        "entryCount": parsed["entry-count"],
+        "entries[0].timeHolder": time_holder,
+        "entries[0].totalHours": total_hours,
+        "entries[0].projectName": project_name,
+    }
+
+    start_date = "01" if now.day <= 16 else "16"
+
+    post_res = session.post(
+        url=f"{BASE_URL}/dashboard/shift/save?startDate={now.strftime('%a')}+{now.strftime('%b')}+{start_date}+00%3A00%3A00+MDT+{now.strftime('%Y')}",
+        data=data,
+    )
 
 
 if __name__ == "__main__":
