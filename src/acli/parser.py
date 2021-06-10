@@ -22,4 +22,11 @@ class ParseHTML:
         hours_all = [hours.getText() for hours in table.find_all("td", class_="hours")]
         dates = [dates.getText() for dates in table.find_all("td", class_="date")]
 
-        return [[dates, hours] for hours, dates in zip(hours_all, dates)]
+        projects = [
+            project.getText() for project in table.find_all("td", class_="projectName")
+        ]
+
+        return [
+            [dates, hours, project]
+            for hours, dates, project in zip(hours_all, dates, projects)
+        ]
