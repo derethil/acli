@@ -2,70 +2,96 @@
 from typing import Dict
 from datetime import datetime
 
-import requests
+from requests import Session
 
 from arc import CLI
 from arc import CommandType as ct
 from arc.present import Table
 from arc.color import fg
+from arc.errors import ValidationError
 
-cli = CLI(name="acli", version="0.1.0")
 
 from .login import login, login_to_session
 from .parser import ParseHTML
 from .config import BASE_URL
 
+cli = CLI(name="acli", version="0.2.0")
 cli.install_command(login)
 
 
 @cli.subcommand(command_type=ct.POSITIONAL)
-def log(hours_to_log: str, project_name=None):
+def log(hours_to_log: float, project_name=None):
     """Submits a single time log to Aggietime based on current date."""
-    session, login_response = login_to_session(requests.Session())
-    login_res = ParseHTML(login_response.content)
+    session, login_response = login_to_session(Session())
+    data_to_post = ParseHTML(login_response.content).get_post_data()
 
     now = datetime.now()
     time_holder = now.strftime("%a, %d %b %Y")
 
     data: Dict[str, str] = {
-        "SYNCHRONIZER_TOKEN": login_res.s_token,
-        "SYNCHRONIZER_URI": login_res.s_uri,
-        "posId": login_res.pos_id,
-        "HoursThisWeek": login_res.total_hours,
-        "entryCount": login_res.entry_count,
+        "SYNCHRONIZER_TOKEN": data_to_post["s_token"],
+        "SYNCHRONIZER_URI": data_to_post["s_uri"],
+        "posId": data_to_post["pos_id"],
+        "HoursThisWeek": data_to_post["total_hours"],
+        "entryCount": data_to_post["entry_count"],
         "entries[0].timeHolder": time_holder,
-        "entries[0].totalHours": hours_to_log,
+        "entries[0].totalHours": str(hours_to_log),
         "entries[0].projectName": project_name,
     }
 
     start_date = "01" if now.day <= 16 else "16"
     post_res = session.post(
-        url=f"{BASE_URL}/dashboard/shift/save?startDate={now.strftime('%a')}+{now.strftime('%b')}+{start_date}+00%3A00%3A00+MDT+{now.strftime('%Y')}",
+        url=f"""{BASE_URL}/dashboard/shift/save?startDate=
+                {now.strftime('%a')}+{now.strftime('%b')}+{start_date}+
+                00%3A00%3A00+MDT+{now.strftime('%Y')}""",
         data=data,
     )
 
-    parsed_post = ParseHTML(post_res.content)
+    post_parser = ParseHTML(post_res.content)
+    post_res_data = post_parser.get_post_data()
 
-    prev_total = float(login_res.total_hours) + float(hours_to_log)
-
-    if float(parsed_post.total_hours) == prev_total:
-        print(f"{fg.GREEN}\nSuccessfully logged {hours_to_log} hours to Aggietim!")
+    if float(post_res_data["total_hours"]) == float(data_to_post["total_hours"]) + hours_to_log:
+        print(f"{fg.GREEN}\nSuccessfully logged {hours_to_log} hours to Aggietime!")
     else:
         print(f"{fg.RED}Log request to Aggieietime unsuccessful.")
 
-    hours(parsed_post)
+    hours(post_parser)
 
 
 @cli.subcommand()
-def hours(parsed=None):
+def hours(parser:ParseHTML=None):
     """Displays your submitted hours for the current pay period."""
-    if parsed is None:
-        session, response = login_to_session(requests.Session())
-        parsed = ParseHTML(response.content)
+    if parser is None:
+        session, response = login_to_session(Session())
+        parser = ParseHTML(response.content)
 
-    parsed.logged.extend([["", "", ""], ["Total", parsed.total_hours, ""]])
+    logged_hours = parser.get_logged_hours()
+    total_hours = parser.get_post_data()["total_hours"]
 
-    print(Table(["Date", "Hours", "Project"], parsed.logged))
+    logged_hours.extend([["", "", ""], ["Total", total_hours, ""]])
+
+    print(Table(["    Date", "Hours", "Project"], logged_hours))
+
+
+@cli.subcommand(command_type=ct.POSITIONAL)
+def delete(log_id:int):
+    """Deletes a log entry from Aggietime."""
+    session, login_response = login_to_session(Session())
+    parser = ParseHTML(login_response.content)
+    log_ids = parser.get_log_ids()
+
+    if log_id - 1 in range(len(log_ids)):
+        log_id_to_delete = log_ids[log_id - 1]
+    else:
+        raise ValidationError("Requested log entry does not exist")
+
+    session.post(
+        url=f"{BASE_URL}/dashboard/shift/delete",
+        data={"id": log_id_to_delete}
+    )
+
+    hours()
+
 
 
 def main():
