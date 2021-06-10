@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "aggietime_cli"
+name = "acli"
 version = "0.1.0"
 description = "A small CLI to help me easily log my Aggietime hours."
 authors = ["Jaren Glenn <jarenglenn@gmail.com>"]
@@ -13,6 +13,7 @@ arc-cli = "^2.3.0"
 beautifulsoup4 = "^4.9.3"
 keyring = "^23.0.1"
 requests = "^2.25.1"
+html5lib = "^1.1"
 
 [tool.poetry.dev-dependencies]
 black = "^21.5b2"

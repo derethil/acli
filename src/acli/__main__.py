@@ -7,11 +7,12 @@ import requests
 from arc import CLI
 from arc import CommandType as ct
 
+cli = CLI(name="acli", version="0.1.0")
+
 from .login import login, login_to_session
-from .parser import parse_values
+from .parser import ParseHTML
 from .config import BASE_URL
 
-cli = CLI()
 cli.install_command(login)
 
 
@@ -20,26 +21,17 @@ def log(total_hours: str, project_name=None):
     """Submits a single time log to Aggietime based on current date."""
     session, login_response = login_to_session(requests.Session())
 
-    parsed: Dict[str, str] = parse_values(
-        login_response.content,
-        to_parse=[
-            "SYNCHRONIZER_TOKEN",
-            "SYNCHRONIZER_URI",
-            "posId",
-            "HoursThisWeek",
-            "entry-count",
-        ],
-    )
+    parsed = ParseHTML(login_response.content)
 
     now = datetime.now()
     time_holder = now.strftime("%a, %d %b %Y")
 
     data: Dict[str, str] = {
-        "SYNCHRONIZER_TOKEN": parsed["SYNCHRONIZER_TOKEN"],
-        "SYNCHRONIZER_URI": parsed["SYNCHRONIZER_URI"],
-        "posId": parsed["posId"],
-        "HoursThisWeek": parsed["HoursThisWeek"],
-        "entryCount": parsed["entry-count"],
+        "SYNCHRONIZER_TOKEN": parsed.s_token,
+        "SYNCHRONIZER_URI": parsed.s_uri,
+        "posId": parsed.pos_id,
+        "HoursThisWeek": parsed.total_hours,
+        "entryCount": parsed.entry_count,
         "entries[0].timeHolder": time_holder,
         "entries[0].totalHours": total_hours,
         "entries[0].projectName": project_name,
