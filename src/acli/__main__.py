@@ -2,7 +2,7 @@
 from typing import Dict
 from datetime import datetime
 
-from requests import Session
+from requests import Session, Response
 
 from arc import CLI
 from arc import CommandType as ct
@@ -68,6 +68,7 @@ def hours(parser:ParseHTML=None):
     logged_hours = parser.get_logged_hours()
     total_hours = parser.get_post_data()["total_hours"]
 
+    logged_hours.reverse()
     logged_hours.extend([["", "", ""], ["Total", total_hours, ""]])
 
     print(Table(["    Date", "Hours", "Project"], logged_hours))
@@ -78,20 +79,24 @@ def delete(log_id:int):
     """Deletes a log entry from Aggietime."""
     session, login_response = login_to_session(Session())
     parser = ParseHTML(login_response.content)
-    log_ids = parser.get_log_ids()
+    reversed_log_ids = parser.get_log_ids()[::-1]
 
-    if log_id - 1 in range(len(log_ids)):
-        log_id_to_delete = log_ids[log_id - 1]
+    if log_id - 1 in range(len(reversed_log_ids)):
+        log_id_to_delete = reversed_log_ids[log_id - 1]
     else:
         raise ValidationError("Requested log entry does not exist")
 
-    session.post(
+    post_response: Response = session.post(
         url=f"{BASE_URL}/dashboard/shift/delete",
         data={"id": log_id_to_delete}
     )
 
-    hours()
+    if post_response.json().get("success") == "Shift successfully deleted":
+        print(f"\n{fg.GREEN}Shift {log_id} successfully deleted!")
+    else:
+        print(f"{fg.RED}Shift deletion unsuccessful. An error occured")
 
+    hours()
 
 
 def main():

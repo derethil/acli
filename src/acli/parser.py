@@ -38,8 +38,9 @@ class ParseHTML:
         ]
 
         log_ids = self.get_log_ids()
+        reversed_log_ids = log_ids[::-1]
 
         return [
-            [f"({log_ids.index(log_id) + 1}) {date}", hours, project]
+            [f"({reversed_log_ids.index(log_id) + 1}) {date}", hours, project]
             for hours, date, project, log_id in zip(hours_all, dates, projects, log_ids)
         ]
