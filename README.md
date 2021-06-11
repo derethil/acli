@@ -25,3 +25,13 @@ To add `x` hours to the current date's log:
 ```
 acli log x
 ```
+
+Deleting a shift:
+```
+acli delete <shift>
+```
+
+Displaying your submitted hours:
+```
+acli hours
+```
