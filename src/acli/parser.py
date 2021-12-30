@@ -1,5 +1,7 @@
+from sys import base_prefix
 from typing import Dict, List
 from bs4 import BeautifulSoup
+from arc.types import Alias
 
 
 class ParseHTML:
@@ -21,8 +23,8 @@ class ParseHTML:
         return self._parse_hours()
 
     def get_log_ids(self) -> List[int]:
-        id_inputs = self._soup.find_all('input', attrs={'data-shiftid' : True})
-        return [int(item['data-shiftid']) for item in id_inputs]
+        id_inputs = self._soup.find_all("input", attrs={"data-shiftid": True})
+        return [int(item["data-shiftid"]) for item in id_inputs]
 
     def _parse_id(self, to_search: str) -> str:
         return self._soup.find(id=to_search).get("value")

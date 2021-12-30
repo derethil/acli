@@ -2,8 +2,9 @@ from typing import Optional, Tuple
 
 import keyring
 import requests
+
 from requests import Session, Response
-from arc import namespace
+from arc import namespace, command, Argument, Option, Flag, Count
 from arc.present import Table
 from arc.present.table import Column
 from arc.present.data import justifications
@@ -12,15 +13,20 @@ from arc.errors import ExecutionError
 
 from .config import BASE_URL
 
-login = namespace("login")
-
-
 # CLI Commands
 
 
-@login.subcommand()
-def set(username: str, password: str, service_name="aggietime"):
-    """Sets your password using a keyring backend of your choice."""
+@command()
+def login(
+    username: str,
+    password: str,
+    *,
+    service_name="aggietime",
+):
+    """Sets your password using a keyring backend of your choice.\
+    # Arguments
+    service_name: name of service
+    """
     keyring.set_password(service_name, "username", username)  # Set username
     keyring.set_password(service_name, username, password)  # Set password
     display(service_name)
@@ -53,9 +59,7 @@ def check_login(username: str, password: str) -> bool:
     return login_res.url == f"{BASE_URL}/dashboard"
 
 
-def show_login_info(
-    service_name: str, username: str, password: str, success: Optional[bool] = None
-):
+def show_login_info(service_name: str, username: str, password: str, success=bool):
     rows = [
         ["Service Name", service_name],
         ["Username", username],
