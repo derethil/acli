@@ -4,7 +4,7 @@ import keyring
 import requests
 
 from requests import Session, Response
-from arc import namespace, command, Argument, Option, Flag, Count
+from arc import namespace, command, Argument, Option, Flag, Count, Context
 from arc.present import Table
 from arc.present.table import Column
 from arc.present.data import justifications
@@ -18,6 +18,7 @@ from .config import BASE_URL
 
 @command()
 def login(
+    ctx: Context,
     username: str,
     password: str,
     *,
@@ -29,7 +30,7 @@ def login(
     """
     keyring.set_password(service_name, "username", username)  # Set username
     keyring.set_password(service_name, username, password)  # Set password
-    display(service_name)
+    ctx.execute(display, service_name=service_name)
 
 
 @login.subcommand()
