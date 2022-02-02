@@ -94,6 +94,6 @@ def login_to_session(session: requests.Session) -> Tuple[Session, Response]:
     )
 
     if not login_response.url == f"{BASE_URL}/dashboard":
-        raise ExecutionError("Incorrect username or password to Aggietime!")
+        raise ExecutionError("Incorrect username or password to Aggietime")
 
     return session, login_response
