@@ -12,6 +12,7 @@ from arc.color import fg
 from arc.errors import ExecutionError
 
 from .config import BASE_URL
+from .keyring import get_login, set_login
 
 # CLI Commands
 
@@ -28,15 +29,14 @@ def login(
     # Arguments
     service_name: name of service
     """
-    keyring.set_password(service_name, "username", username)  # Set username
-    keyring.set_password(service_name, username, password)  # Set password
+    set_login(service_name, username, password)
     ctx.execute(display, service_name=service_name)
 
 
 @login.subcommand()
 def display(service_name="aggietime"):
     """Displays and checks if your current login information is correct."""
-    username, password = get_login_info()
+    username, password = get_login()
 
     if password == "" or password == None:
         show_login_info(service_name, username, f"{fg.RED}No password set")
@@ -85,19 +85,12 @@ def show_login_info(service_name: str, username: str, password: str, success=boo
     print(Table(["Key", "Value"], rows, format_cell=format_cell))
 
 
-def get_login_info(service_name="aggietime"):
-    username: Optional[str] = keyring.get_password(service_name, "username")
-    password: Optional[str] = keyring.get_password(service_name, username)
-
-    return (username, password)
-
-
 def login_to_session(session: requests.Session) -> Tuple[Session, Response]:
-    usernmame, password = get_login_info()
+    username, password = get_login()
 
     login_response = session.post(
         url=f"{BASE_URL}/j_spring_security_check",
-        data={"j_username": usernmame, "j_password": password},
+        data={"j_username": username, "j_password": password},
     )
 
     if not login_response.url == f"{BASE_URL}/dashboard":
