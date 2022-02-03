@@ -1,4 +1,3 @@
-import json
 from datetime import datetime, timedelta
 
 from keyring import get_password, set_password, delete_password

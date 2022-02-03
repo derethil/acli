@@ -21,7 +21,7 @@ mypy = "^0.901"
 mypy-extensions = "^0.4.3"
 
 [tool.poetry.scripts]
-acli = "acli.__main__:main"
+acli = "acli.cli:cli"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

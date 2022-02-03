@@ -39,7 +39,7 @@ def login(
 def display(*, service_name="aggietime"):
     """Displays and checks if your current login information is correct.
     # Arguments
-    service_name: name of service to use for keyring
+    service_name: Name of service to use for keyring
     """
     username, password = get_login()
 
