@@ -35,11 +35,14 @@ def set_login(username: str, password: str, *, service_name: str = DEF_SERVICE) 
 
 # Token Interface
 
+TOKEN_KEY = "token"
+
 
 def set_token(
     token: str,
     uri: str,
     pos_id: str,
+    login_res_url: str,
     *,
     minutes: int = 15,
     service_name: str = DEF_SERVICE,
@@ -51,15 +54,16 @@ def set_token(
             "token": token,
             "uri": uri,
             "pos_id": pos_id,
+            "login_res_url": login_res_url,
             "expires_at": expires_at.isoformat(),
         }
     )
 
-    set_password(service_name, "token", token_str)
+    set_password(service_name, TOKEN_KEY, token_str)
 
 
-def get_token(service_name: str = DEF_SERVICE) -> dict[str, str] | None:
-    token_str = get_password(service_name, "token")
+def get_token(*, service_name: str = DEF_SERVICE) -> dict[str, str] | None:
+    token_str = get_password(service_name, TOKEN_KEY)
 
     if not token_str:
         return None
@@ -71,5 +75,5 @@ def get_token(service_name: str = DEF_SERVICE) -> dict[str, str] | None:
         raise ExecutionError("Keyring contains an invalid token structure")
 
 
-def delete_token(service_name: str = DEF_SERVICE) -> None:
-    delete_password(service_name, "token")
+def delete_token(*, service_name: str = DEF_SERVICE) -> None:
+    delete_password(service_name, TOKEN_KEY)
