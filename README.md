@@ -14,24 +14,19 @@ pip install .
 
 You'll also need to set up your login information with
 ```
-acli login:set username=myusername password=mypassword
+acli login username password
 ```
 
 ## Usage
 
 
-To add `x` hours to the current date's log:
+Punching in or out of Aggietime:
 
 ```
-acli log x
+acli punch
 ```
 
-Deleting a shift:
+Displays whether or not you are punched into Aggietime:
 ```
-acli delete <shift>
-```
-
-Displaying your submitted hours:
-```
-acli hours
+acli status
 ```
