@@ -25,17 +25,22 @@ def login(
     *,
     service_name="aggietime",
 ):
-    """Sets your password using a keyring backend of your choice.\
+    """Sets your password using a keyring backend of your choice.
     # Arguments
-    service_name: name of service
+    username: username to log into aggietime
+    password: password to log into aggietime
+    service_name: name of service to use for keyring
     """
-    set_login(service_name, username, password)
+    set_login(username, password, service_name=service_name)
     ctx.execute(display, service_name=service_name)
 
 
 @login.subcommand()
-def display(service_name="aggietime"):
-    """Displays and checks if your current login information is correct."""
+def display(*, service_name="aggietime"):
+    """Displays and checks if your current login information is correct.
+    # Arguments
+    service_name: name of service to use for keyring
+    """
     username, password = get_login()
 
     if password == "" or password == None:
