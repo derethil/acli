@@ -88,17 +88,3 @@ def show_login_info(service_name: str, username: str, password: str, success=boo
         )
 
     print(Table(["Key", "Value"], rows, format_cell=format_cell))
-
-
-def login_to_session(session: requests.Session) -> Tuple[Session, Response]:
-    username, password = get_login()
-
-    login_response = session.post(
-        url=f"{BASE_URL}/j_spring_security_check",
-        data={"j_username": username, "j_password": password},
-    )
-
-    if not login_response.url == f"{BASE_URL}/dashboard":
-        raise ExecutionError("Incorrect username or password to Aggietime")
-
-    return session, login_response

@@ -3,7 +3,7 @@ from requests import Session, Response
 
 from arc import ExecutionError
 
-from .keyring import get_login, set_token, get_token, delete_token
+from .keyring import get_login
 from .config import BASE_URL
 from .parser import ParseHTML
 
@@ -17,7 +17,7 @@ class ASession:
 
         self._login_res_url = None
 
-        self._load_token()
+        self.content = None
 
     def login(self) -> bytes:
         username, password = get_login()
@@ -31,23 +31,27 @@ class ASession:
             raise ExecutionError("Incorrect username or password to Aggietime")
 
         self._synchronize(res)
+        self.content = res.content
 
         return res.content
 
     def logged_in(self) -> bool:
         return self._token != None
 
-    def post(self, url, data) -> Response:
-        data.update(
-            {
-                "SYNCHRONIZER_TOKEN": self._token,
-                "SYNCHRONIZER_URI": self._uri,
-                "posId": self._pos_id,
-            }
-        )
+    def post(self, *, url, data) -> Response:
+        data.update(self._construct_token_body())
 
         return self._session.post(
             url=url, data=data, headers=self._construct_headers(data)
+        )
+
+    def get(self, *, url) -> Response:
+        data = self._construct_token_body()
+
+        return self._session.get(
+            url=url,
+            headers=self._construct_headers(data),
+            data=data,
         )
 
     def _synchronize(self, res: Response) -> None:
@@ -56,26 +60,8 @@ class ASession:
         self._token = parser.find_by_id("SYNCHRONIZER_TOKEN")
         self._uri = parser.find_by_id("SYNCHRONIZER_URI")
         self._pos_id = parser.find_by_id("posId")
+
         self._login_res_url = res.request.url
-
-        set_token(self._token, self._uri, self._pos_id, self._login_res_url)
-
-    def _load_token(self) -> None:
-        token = get_token()
-
-        if not token:
-            return
-
-        expires_at = datetime.fromisoformat(token["expires_at"])
-
-        if datetime.now() >= expires_at:
-            delete_token()
-            return
-
-        self._token = token["token"]
-        self._uri = token["uri"]
-        self._pos_id = token["pos_id"]
-        self._login_res_url = token["login_res_url"]
 
     def _construct_headers(self, data: dict[str, str]) -> dict[str, str]:
         return {
@@ -89,4 +75,11 @@ class ASession:
             "REFERER": f"{self._login_res_url}",
             "ACCEPT_LANGUAGE": "en-us",
             "CONTENT_LENGTH": f"{len(str(data))}",
+        }
+
+    def _construct_token_body(self):
+        return {
+            "SYNCHRONIZER_TOKEN": self._token,
+            "SYNCHRONIZER_URI": self._uri,
+            "posId": self._pos_id,
         }
