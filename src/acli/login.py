@@ -1,15 +1,11 @@
-from typing import Optional, Tuple
-
-import keyring
 import requests
 
-from requests import Session, Response
-from arc import namespace, command, Argument, Option, Flag, Count, Context
+from arc import command, Argument, Context
 from arc.present import Table
 from arc.present.table import Column
 from arc.present.data import justifications
 from arc.color import fg
-from arc.errors import ExecutionError
+from arc.types import Password
 
 from .config import BASE_URL
 from .keyring import get_login, set_login
@@ -20,9 +16,9 @@ from .keyring import get_login, set_login
 @command()
 def login(
     ctx: Context,
-    username: str,
-    password: str,
     *,
+    username: str = Argument(prompt="Enter your ANumber:"),
+    password: Password = Argument(prompt="Enter your Password:"),
     service_name="aggietime",
 ):
     """Sets your password using a keyring backend of your choice.
