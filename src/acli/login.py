@@ -44,13 +44,13 @@ def display(*, service_name="aggietime"):
     username, password = get_login()
 
     if password == "" or password == None:
-        show_login_info(service_name, username, f"{fg.RED}No password set")
+        show_login_info(service_name, username)
         return
 
     assert isinstance(password, str)
     login_success = check_login(username, password)
 
-    show_login_info(service_name, username, password, login_success)
+    show_login_info(service_name, username, login_success)
 
 
 # Helper Functions
@@ -65,11 +65,10 @@ def check_login(username: str, password: str) -> bool:
     return login_res.url == f"{BASE_URL}/dashboard"
 
 
-def show_login_info(service_name: str, username: str, password: str, success=bool):
+def show_login_info(service_name: str, username: str, success=bool):
     rows = [
         ["Service Name", service_name],
         ["Username", username],
-        ["Password", password],
     ]
 
     if success is not None:

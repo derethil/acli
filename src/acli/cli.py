@@ -17,7 +17,7 @@ from .config import BASE_URL
 
 cli = CLI(
     name="acli",
-    env="production",
+    env="development",
     state={"session": ASession()},
 )
 
