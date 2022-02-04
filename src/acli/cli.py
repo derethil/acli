@@ -57,12 +57,7 @@ def punch(state: State, *, comment: str = "", project_name: str = ""):
         },
     )
 
-    match to_status:
-        case "IN":
-            direction = "into"
-        case "OUT":
-            direction = "out of"
-
+    direction = "into" if to_status == "IN" else "out of"
     if res.status_code == 200:
         print(colorize(f"Successfully punched {direction} Aggietime!", fg.BRIGHT_CYAN))
     else:
