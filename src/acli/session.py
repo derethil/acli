@@ -16,7 +16,6 @@ class ASession:
         self._pos_id = None
 
         self._login_res_url = None
-
         self.content = None
 
     def login(self) -> bytes:

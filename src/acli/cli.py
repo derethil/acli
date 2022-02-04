@@ -76,3 +76,16 @@ def status(state: State):
         print(colorize("You're clocked in.", fg.BRIGHT_CYAN))
     else:
         print(colorize("You're clocked out.", fg.BRIGHT_CYAN))
+
+
+@login_required
+@cli.subcommand()
+def delete(state: State):
+    """Select a shift and delete it from Aggietime's records."""
+
+    session: ASession = state["session"]
+    parser = ParseHTML(session.content)
+
+    parser.get_logged_hours()
+
+    breakpoint()

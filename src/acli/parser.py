@@ -8,17 +8,6 @@ class ParseHTML:
     def __init__(self, html_content: bytes) -> None:
         self._soup = BeautifulSoup(html_content, "html5lib")
 
-    def get_post_data(self) -> Dict[str, str]:
-        data_to_post: Dict[str, str] = {
-            "s_token": self.find_by_id("SYNCHRONIZER_TOKEN"),
-            "s_uri": self.find_by_id("SYNCHRONIZER_URI"),
-            "pos_id": self.find_by_id("posId"),
-            "entry_count": self.find_by_id("entry-count"),
-            "total_hours": self.find_by_id("HoursThisWeek"),
-        }
-
-        return data_to_post
-
     def get_logged_hours(self) -> List[List[str]]:
         return self._parse_hours()
 
@@ -29,20 +18,22 @@ class ParseHTML:
     def find_by_id(self, to_search: str) -> str:
         return self._soup.find(id=to_search).get("value")
 
-    def _parse_hours(self) -> List[List[str]]:
-        table = self._soup.find("table", id="pay-period").find_all("tbody")[0]
+    def _parse_hours(self):
+        table = self._soup.find("table", id="pay-period").find("tbody")
 
-        hours_all = [hours.getText() for hours in table.find_all("td", class_="hours")]
-        dates = [dates.getText() for dates in table.find_all("td", class_="date")]
+        def get_el(class_: str, *, el: str = "span") -> list[str]:
+            els = [el.getText().strip() for el in table.find_all(el, class_=class_)]
+            els.reverse()
+            return els
 
-        projects = [
-            project.getText() for project in table.find_all("td", class_="projectName")
-        ]
+        in_times = get_el("in-time")
+        out_times = get_el("out-time")
+        in_dates = get_el("in-date")
+        out_dates = get_el("out-date")
 
-        log_ids = self.get_log_ids()
-        reversed_log_ids = log_ids[::-1]
+        all_hours = list(filter(None, get_el("hours", el="td")))
 
         return [
-            [f"({reversed_log_ids.index(log_id) + 1}) {date}", hours, project]
-            for hours, date, project, log_id in zip(hours_all, dates, projects, log_ids)
+            {"in_t": x[0], "out_t": x[1], "in_d": x[2], "out_d": x[3], "hours": x[4]}
+            for x in zip(in_times, out_times, in_dates, out_dates, all_hours)
         ]
