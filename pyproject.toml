@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "acli"
-version = "0.1.0"
+version = "1.0.0"
 description = "A small CLI to help me easily log my Aggietime hours."
 authors = ["Jaren Glenn <jarenglenn@gmail.com>"]
 packages = [
@@ -14,14 +14,16 @@ beautifulsoup4 = "^4.9.3"
 keyring = "^23.0.1"
 requests = "^2.25.1"
 html5lib = "^1.1"
+types-requests = "^2.27.8"
 
 [tool.poetry.dev-dependencies]
 black = "^21.5b2"
 mypy = "^0.901"
 mypy-extensions = "^0.4.3"
+pylint = "^2.12.2"
 
 [tool.poetry.scripts]
-acli = "acli.__main__:main"
+acli = "acli.cli:cli"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
