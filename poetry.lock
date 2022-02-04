@@ -1,6 +1,6 @@
 [[package]]
 name = "arc-cli"
-version = "6.2.1"
+version = "6.3.0b3"
 description = "A Regular CLI"
 category = "main"
 optional = false
@@ -441,12 +441,12 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytes
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "39bf8ec0f35369854d53a0e827e1fdd9b0d4c7629260f8e79711426d58af75b8"
+content-hash = "d51ce6c2490396ea5a784327d8333a9b91209052ae98e7f881ad487b17ce6664"
 
 [metadata.files]
 arc-cli = [
-    {file = "arc-cli-6.2.1.tar.gz", hash = "sha256:ec60cff8203f66253518a6947e8b166e0901c64f4a3ee11c7f6d0a4a9b86be77"},
-    {file = "arc_cli-6.2.1-py3-none-any.whl", hash = "sha256:4dfdee7e7f01035865db281532b25b5da9d8754bb18fc795478d684376f184d5"},
+    {file = "arc-cli-6.3.0b3.tar.gz", hash = "sha256:85f12ffdd53141554e093c8fcc7ea336ec1ad6a471b54e7c7a3312690828b77d"},
+    {file = "arc_cli-6.3.0b3-py3-none-any.whl", hash = "sha256:cd4ad80ef58c22de17d5a8138b3e4ecbb528d1dfe9b600b16fb62acb18342c3d"},
 ]
 astroid = [
     {file = "astroid-2.9.3-py3-none-any.whl", hash = "sha256:506daabe5edffb7e696ad82483ad0228245a9742ed7d2d8c9cdb31537decf9f6"},
