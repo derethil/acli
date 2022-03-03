@@ -8,7 +8,7 @@ class ParseHTML:
     def __init__(self, html_content: bytes) -> None:
         self._soup = BeautifulSoup(html_content, "html5lib")
 
-    def get_logged_hours(self) -> List[List[str]]:
+    def get_logged_hours(self) -> List[dict[str, str]]:
         return self._parse_hours()
 
     def get_log_ids(self) -> List[int]:

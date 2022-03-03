@@ -1,18 +1,13 @@
 #!/bin/python
-from typing import Dict
-from datetime import datetime
-
-from requests import Session, Response
-
 from arc import CLI, State, callback, prompt, Context, logging
 from arc.present import Table
 from arc.color import fg, colorize
-from arc.errors import ValidationError
 
 from .session import ASession
 from .login import login
 from .parser import ParseHTML
 from .config import BASE_URL
+from .utils import format_time
 
 
 cli = CLI(
@@ -86,6 +81,15 @@ def delete(state: State):
     session: ASession = state["session"]
     parser = ParseHTML(session.content)
 
-    parser.get_logged_hours()
+    parsed = parser.get_logged_hours()
 
-    breakpoint()
+    rows = [
+        [
+            row["in_d"],
+            f'{row["in_t"]} - {row["out_t"]}',
+            format_time(float(row["hours"])),
+        ]
+        for row in parsed
+    ]
+
+    print(Table(["Date", "Time In/Out", "Hours"], rows=rows))
