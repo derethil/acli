@@ -1,6 +1,8 @@
 #!/bin/python
 from arc import CLI, State, callback, prompt, Context, logging
 from arc.present import Table
+from arc.present.table import Column
+from arc.present.data import justifications
 from arc.color import fg, colorize
 
 from .session import ASession
@@ -75,7 +77,7 @@ def status(state: State):
 
 @login_required
 @cli.subcommand()
-def delete(state: State):
+def list(state: State):
     """Select a shift and delete it from Aggietime's records."""
 
     session: ASession = state["session"]
@@ -92,4 +94,15 @@ def delete(state: State):
         for row in parsed
     ]
 
-    print(Table(["Date", "Time In/Out", "Hours"], rows=rows))
+    def format_cell(content, column: Column, row_idx, column_idx):
+        return (
+            Table.formatter(
+                string=content,
+                width=column["width"],
+                align=justifications[column["justify"]],
+                tcolor=f"{fg.WHITE}",
+            )
+            + " "
+        )
+
+    print(Table(["Date", "Time In/Out", "Hours"], rows=rows, format_cell=format_cell))
