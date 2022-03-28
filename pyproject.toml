@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "acli"
-version = "1.0.0"
+version = "1.1.0"
 description = "A small CLI to help me easily log my Aggietime hours."
 authors = ["Jaren Glenn <jarenglenn@gmail.com>"]
 packages = [

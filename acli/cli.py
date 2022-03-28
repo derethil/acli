@@ -102,13 +102,10 @@ def list(state: State):
         return (
             Table.formatter(
                 string=content,
-                width=10,
-                align=justifications[column["justify"]],
                 tcolor=f"{fg.WHITE}",
             )
             + " "
         )
 
     print(Table(["Date", "Time In/Out", "Hours"], rows=rows, format_cell=format_cell))
-
-    print(Table(["Total Hours"], rows=[[str(total)]], format_cell=format_cell))
+    print(Table(["Total"], rows=[[format_time(total)]], format_cell=format_cell))
