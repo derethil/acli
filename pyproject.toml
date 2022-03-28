@@ -4,7 +4,7 @@ version = "1.0.0"
 description = "A small CLI to help me easily log my Aggietime hours."
 authors = ["Jaren Glenn <jarenglenn@gmail.com>"]
 packages = [
-    {include = "acli", from = "src"}
+    {include = "acli"}
 ]
 
 [tool.poetry.dependencies]
@@ -23,7 +23,7 @@ mypy-extensions = "^0.4.3"
 pylint = "^2.12.2"
 
 [tool.poetry.scripts]
-acli = "src.acli.cli:cli"
+acli = "acli.cli:cli"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
