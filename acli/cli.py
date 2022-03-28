@@ -1,4 +1,6 @@
 #!/bin/python
+from functools import reduce
+
 from arc import CLI, State, callback, prompt, Context, logging
 from arc.present import Table
 from arc.present.table import Column
@@ -14,7 +16,7 @@ from .utils import format_time
 
 cli = CLI(
     name="acli",
-    env="development",
+    # env="development",
     state={"session": ASession()},
 )
 
@@ -94,11 +96,13 @@ def list(state: State):
         for row in parsed
     ]
 
+    total = reduce(lambda x, y: x + y, [float(row["hours"]) for row in parsed])
+
     def format_cell(content, column: Column, row_idx, column_idx):
         return (
             Table.formatter(
                 string=content,
-                width=column["width"],
+                width=10,
                 align=justifications[column["justify"]],
                 tcolor=f"{fg.WHITE}",
             )
@@ -106,3 +110,5 @@ def list(state: State):
         )
 
     print(Table(["Date", "Time In/Out", "Hours"], rows=rows, format_cell=format_cell))
+
+    print(Table(["Total Hours"], rows=[[str(total)]], format_cell=format_cell))
