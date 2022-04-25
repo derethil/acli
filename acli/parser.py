@@ -1,7 +1,6 @@
 from bs4 import BeautifulSoup
 from datetime import datetime
 
-
 class ParseHTML:
     def __init__(self, html_content: bytes) -> None:
         self._soup = BeautifulSoup(html_content, "html5lib")
@@ -22,6 +21,9 @@ class ParseHTML:
     def current_hours(self) -> float:
         """Return the current shift length in hours"""
         current_row = self._soup.find("table", id="pay-period").find("tbody").find("tr")
+
+        if current_row.find("span", class_="out-time bold"):
+            raise RuntimeError("Can't get current shift length if clocked out")
 
         time_in = current_row.find("span", class_="in-time bold").get_text().strip()
         date_in = current_row.find("span", class_="in-date smaller").get_text().strip()
