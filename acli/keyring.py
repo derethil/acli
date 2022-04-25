@@ -10,6 +10,7 @@ DEF_SERVICE = "aggietime"
 
 
 def get_login(*, service_name: str = DEF_SERVICE) -> tuple[str, str]:
+    """Return the username and password to Aggietime stored in the keyring"""
     username = get_password(service_name, "username")
 
     if not username:
@@ -28,5 +29,6 @@ def get_login(*, service_name: str = DEF_SERVICE) -> tuple[str, str]:
 
 
 def set_login(username: str, password: str, *, service_name: str = DEF_SERVICE) -> None:
+    """Set Aggietime login information in the keyring"""
     set_password(service_name, "username", username)
     set_password(service_name, username, password)

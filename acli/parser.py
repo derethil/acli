@@ -7,16 +7,20 @@ class ParseHTML:
         self._soup = BeautifulSoup(html_content, "html5lib")
 
     def get_logged_hours(self) -> list[dict[str, str]]:
+        """Return all shift dates and times (not including the current shift)"""
         return self._parse_hours()
 
     def get_log_ids(self) -> list[int]:
+        """Get shiftids for all logged shifts"""
         id_inputs = self._soup.find_all("input", attrs={"data-shiftid": True})
         return [int(item["data-shiftid"]) for item in id_inputs]
 
-    def find_by_id(self, to_search: str) -> str:
-        return self._soup.find(id=to_search).get("value")
+    def find_by_id(self, id: str) -> str:
+        """Find any tag with an `id` and return its value"""
+        return self._soup.find(id=id).get("value")
 
     def current_hours(self) -> float:
+        """Return the current shift length in hours"""
         current_row = self._soup.find("table", id="pay-period").find("tbody").find("tr")
 
         time_in = current_row.find("span", class_="in-time bold").get_text().strip()
@@ -29,6 +33,7 @@ class ParseHTML:
         return current_shift_length
 
     def _parse_hours(self):
+        """Prase the HTML to return shift dates and times"""
         table = self._soup.find("table", id="pay-period").find("tbody")
 
         def get_el(class_: str, *, el: str = "span") -> list[str]:

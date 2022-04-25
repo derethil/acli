@@ -19,6 +19,7 @@ class ASession:
         self.content = None
 
     def login(self) -> bytes:
+        """Log in to Aggietime & store the main page"""
         username, password = get_login()
 
         res = self._session.post(
@@ -38,6 +39,7 @@ class ASession:
         return self._token != None
 
     def post(self, *, url, data) -> Response:
+        """Make a post request to Aggietime"""
         data.update(self._construct_token_body())
 
         return self._session.post(
@@ -45,6 +47,7 @@ class ASession:
         )
 
     def get(self, *, url) -> Response:
+        """Make a get request to Aggietime"""
         data = self._construct_token_body()
 
         return self._session.get(

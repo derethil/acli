@@ -53,6 +53,7 @@ def display(*, service_name="aggietime"):
 
 
 def check_login(username: str, password: str) -> bool:
+    """Returns whether or not the saved login information is correct."""
     login_res = requests.post(
         url=f"{BASE_URL}/j_spring_security_check",
         data={"j_username": username, "j_password": password},
@@ -62,6 +63,7 @@ def check_login(username: str, password: str) -> bool:
 
 
 def show_login_info(service_name: str, username: str, success=bool):
+    """Prints a table containing the stored login to Aggietime."""
     rows = [
         ["Service Name", service_name],
         ["Username", username],
