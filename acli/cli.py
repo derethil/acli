@@ -69,10 +69,13 @@ def status(state: State):
     """Indicate whether you are clocked in or out of Aggietime"""
 
     session: ASession = state["session"]
-    to_status = ParseHTML(session.content).find_by_id("toStatus")
+    parser = ParseHTML(session.content)
+
+    to_status: str = parser.find_by_id("toStatus")
 
     if to_status == "OUT":
-        print(colorize("You're clocked in.", fg.BRIGHT_CYAN))
+        hours = parser.current_hours()
+        print(colorize(f"You're clocked in with {format_time(hours)} logged.", fg.BRIGHT_CYAN))
     else:
         print(colorize("You're clocked out.", fg.BRIGHT_CYAN))
 

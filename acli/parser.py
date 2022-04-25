@@ -1,22 +1,32 @@
-from sys import base_prefix
-from typing import Dict, List
 from bs4 import BeautifulSoup
-from arc.types import Alias
+from datetime import datetime
 
 
 class ParseHTML:
     def __init__(self, html_content: bytes) -> None:
         self._soup = BeautifulSoup(html_content, "html5lib")
 
-    def get_logged_hours(self) -> List[dict[str, str]]:
+    def get_logged_hours(self) -> list[dict[str, str]]:
         return self._parse_hours()
 
-    def get_log_ids(self) -> List[int]:
+    def get_log_ids(self) -> list[int]:
         id_inputs = self._soup.find_all("input", attrs={"data-shiftid": True})
         return [int(item["data-shiftid"]) for item in id_inputs]
 
     def find_by_id(self, to_search: str) -> str:
         return self._soup.find(id=to_search).get("value")
+
+    def current_hours(self) -> float:
+        current_row = self._soup.find("table", id="pay-period").find("tbody").find("tr")
+
+        time_in = current_row.find("span", class_="in-time bold").get_text().strip()
+        date_in = current_row.find("span", class_="in-date smaller").get_text().strip()
+
+        datetime_in = datetime.strptime(f"{time_in} {date_in}", "%I:%M %p %m/%d/%y")
+        now = datetime.now()
+
+        current_shift_length = (now - datetime_in).total_seconds() / 60 / 60
+        return current_shift_length
 
     def _parse_hours(self):
         table = self._soup.find("table", id="pay-period").find("tbody")
