@@ -34,7 +34,7 @@ def login(
 @login.subcommand()
 def display(*, service_name="aggietime"):
     """Displays and checks if your current login information is correct.
-    # Arguments
+    # Argumentsq
     service_name: Name of service to use for keyring
     """
     username, password = get_login()

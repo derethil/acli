@@ -16,7 +16,7 @@ from .utils import format_time
 
 cli = CLI(
     name="acli",
-    # env="development",
+    env="development",
     state={"session": ASession()},
 )
 
@@ -75,7 +75,11 @@ def status(state: State):
 
     if to_status == "OUT":
         hours = parser.current_hours()
-        print(colorize(f"You're clocked in with {format_time(hours)} logged.", fg.BRIGHT_CYAN))
+        print(
+            colorize(
+                f"You're clocked in with {format_time(hours)} logged.", fg.BRIGHT_CYAN
+            )
+        )
     else:
         print(colorize("You're clocked out.", fg.BRIGHT_CYAN))
 
@@ -99,7 +103,10 @@ def list(state: State):
         for row in parsed
     ]
 
-    total = reduce(lambda x, y: x + y, [float(row["hours"]) for row in parsed])
+    if parsed == []:
+        total = 0.0
+    else:
+        total = reduce(lambda x, y: x + y, [float(row["hours"]) for row in parsed])
 
     def format_cell(content, column: Column, row_idx, column_idx):
         return (
