@@ -16,7 +16,7 @@ from .utils import format_time
 
 cli = CLI(
     name="acli",
-    env="development",
+    # env="development",
     state={"session": ASession()},
 )
 
@@ -74,7 +74,7 @@ def status(state: State):
     to_status: str = parser.find_by_id("toStatus")
 
     if to_status == "OUT":
-        hours = parser.current_hours()
+        hours = parser.current_shift_hours()
         print(
             colorize(
                 f"You're clocked in with {format_time(hours)} logged.", fg.BRIGHT_CYAN
@@ -86,7 +86,7 @@ def status(state: State):
 
 @login_required
 @cli.subcommand()
-def list(state: State):
+def shifts(state: State):
     """Select a shift and delete it from Aggietime's records."""
 
     session: ASession = state["session"]

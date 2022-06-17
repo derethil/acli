@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 from datetime import datetime
 
+
 class ParseHTML:
     def __init__(self, html_content: bytes) -> None:
         self._soup = BeautifulSoup(html_content, "html5lib")
@@ -18,7 +19,7 @@ class ParseHTML:
         """Find any tag with an `id` and return its value"""
         return self._soup.find(id=id).get("value")
 
-    def current_hours(self) -> float:
+    def current_shift_hours(self) -> float:
         """Return the current shift length in hours"""
         current_row = self._soup.find("table", id="pay-period").find("tbody").find("tr")
 
@@ -50,7 +51,20 @@ class ParseHTML:
 
         all_hours = list(filter(None, get_el("hours", el="td")))
 
-        return [
+        shifts = [
             {"in_t": x[0], "out_t": x[1], "in_d": x[2], "out_d": x[3], "hours": x[4]}
             for x in zip(in_times, out_times, in_dates, out_dates, all_hours)
         ]
+
+        if len(in_times) > len(out_times):
+            shifts.append(
+                {
+                    "in_t": in_times[-1],
+                    "out_t": "",
+                    "in_d": in_dates[-1],
+                    "out_d": "",
+                    "hours": self.current_shift_hours(),
+                }
+            )
+
+        return shifts
