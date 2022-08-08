@@ -10,4 +10,5 @@ def calc_time(hours: float) -> tuple[int, float | int]:
 def format_time(hours: float) -> str:
     """Convert time into `XXh XXm` format"""
     (hours, minutes) = calc_time(hours)
-    return f"{hours}h {minutes}m"
+
+    return f"{hours:2d}h {minutes:02}m"

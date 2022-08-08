@@ -3,9 +3,6 @@ import requests
 from arc import command, Argument, Context
 
 from arc.present.table import Table
-from arc.present.table import Column
-from arc.present.data import justifications
-from arc.color import fg, colorize
 from arc.types import Password
 
 from .config import BASE_URL

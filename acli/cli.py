@@ -16,19 +16,14 @@ from .parser import ParseHTML
 from .config import BASE_URL
 from .utils import format_time
 
-configure(environment="production", brand_color=fg.WHITE)
+configure(environment="development", brand_color=fg.WHITE)
 
 from .login import login
 
 cli = namespace(name="acli")
 
 # Login command object
-cli.add_command(login, ["l"])
-
-
-@arc.group
-class Group:
-    ...
+cli.add_command(login)
 
 
 class ACLIState(State):
@@ -107,7 +102,7 @@ def shifts(ctx: Context, state: ACLIState):
         table.add_row(
             [
                 row["in_d"],
-                f'{row["in_t"]} - {row["out_t"]}',
+                f'{row["in_t"]:>8s} - {row["out_t"]:8s}',
                 format_time(float(row["hours"])),
             ]
         )
