@@ -1,53 +1,59 @@
 #!/bin/python
 from functools import reduce
+from os import environ
 
-from arc import CLI, State, callback, prompt, Context, logging
-from arc.present import Table
+import arc
+from arc import prompt, Context, logging, namespace, configure
+from arc.types import State
+
+from arc.present.table import Table
 from arc.present.table import Column
 from arc.present.data import justifications
 from arc.color import fg, colorize
 
 from .session import ASession
-from .login import login
 from .parser import ParseHTML
 from .config import BASE_URL
 from .utils import format_time
 
+configure(environment="production", brand_color=fg.WHITE)
 
-cli = CLI(
-    name="acli",
-    # env="development",
-    state={"session": ASession()},
-)
+from .login import login
+
+cli = namespace(name="acli")
 
 # Login command object
-cli.install_command(login)
+cli.add_command(login, ["l"])
+
+
+@arc.group
+class Group:
+    ...
+
+
+class ACLIState(State):
+    session: ASession
+
 
 # Login decorator
-@callback.create()
-def login_required(args, ctx: Context):
+@arc.decorator()
+def login_required(ctx: Context):
     session: ASession = ctx.state["session"]
     session.login()
 
-    try:
-        yield
-    finally:
-        pass
-
 
 @login_required
-@cli.subcommand()
-def punch(state: State, *, comment: str = "", project_name: str = ""):
+@cli.subcommand(("punch", "p"))
+def punch(state: ACLIState, *, comment: str = "", project_name: str = ""):
     """Clock in or out of Aggietime
     # Arguments
     comment: Comment for your supervisor
     project_name: Project name for current punch
     """
 
-    session: ASession = state["session"]
-    to_status = ParseHTML(session.content).find_by_id("toStatus")
+    to_status = ParseHTML(state.session.content).find_by_id("toStatus")
 
-    res = session.post(
+    res = state.session.post(
         url=f"{BASE_URL}/dashboard/clock/punch",
         data={
             "toStatus": to_status,
@@ -65,11 +71,10 @@ def punch(state: State, *, comment: str = "", project_name: str = ""):
 
 @login_required
 @cli.subcommand()
-def status(state: State):
+def status(state: ACLIState):
     """Indicate whether you are clocked in or out of Aggietime"""
 
-    session: ASession = state["session"]
-    parser = ParseHTML(session.content)
+    parser = ParseHTML(state.session.content)
 
     to_status: str = parser.find_by_id("toStatus")
 
@@ -86,36 +91,33 @@ def status(state: State):
 
 @login_required
 @cli.subcommand()
-def shifts(state: State):
+def shifts(ctx: Context, state: ACLIState):
     """Select a shift and delete it from Aggietime's records."""
-
-    session: ASession = state["session"]
-    parser = ParseHTML(session.content)
+    parser = ParseHTML(state.session.content)
 
     parsed = parser.get_logged_hours()
-
-    rows = [
-        [
-            row["in_d"],
-            f'{row["in_t"]} - {row["out_t"]}',
-            format_time(float(row["hours"])),
-        ]
-        for row in parsed
-    ]
 
     if parsed == []:
         total = 0.0
     else:
         total = reduce(lambda x, y: x + y, [float(row["hours"]) for row in parsed])
 
-    def format_cell(content, column: Column, row_idx, column_idx):
-        return (
-            Table.formatter(
-                string=content,
-                tcolor=f"{fg.WHITE}",
-            )
-            + " "
+    table = Table(["Date", "Time In/Out", {"name": "Hours", "justify": "right"}])
+    for row in parsed:
+        table.add_row(
+            [
+                row["in_d"],
+                f'{row["in_t"]} - {row["out_t"]}',
+                format_time(float(row["hours"])),
+            ]
         )
 
-    print(Table(["Date", "Time In/Out", "Hours"], rows=rows, format_cell=format_cell))
-    print(Table(["Total"], rows=[[format_time(total)]], format_cell=format_cell))
+    print(table)
+
+    table = Table(["Total"])
+    table.add_row([format_time(total)])
+    print(table)
+
+
+def main():
+    cli(state={"session": ASession()})

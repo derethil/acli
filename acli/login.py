@@ -1,10 +1,11 @@
 import requests
 
 from arc import command, Argument, Context
-from arc.present import Table
+
+from arc.present.table import Table
 from arc.present.table import Column
 from arc.present.data import justifications
-from arc.color import fg
+from arc.color import fg, colorize
 from arc.types import Password
 
 from .config import BASE_URL
@@ -16,9 +17,9 @@ from .keyring import get_login, set_login
 @command()
 def login(
     ctx: Context,
-    *,
     username: str = Argument(prompt="Enter your ANumber:"),
     password: Password = Argument(prompt="Enter your Password:"),
+    *,
     service_name="aggietime",
 ):
     """Sets your password using a keyring backend of your choice.
@@ -34,7 +35,7 @@ def login(
 @login.subcommand()
 def display(*, service_name="aggietime"):
     """Displays and checks if your current login information is correct.
-    # Argumentsq
+    # Arguments
     service_name: Name of service to use for keyring
     """
     username, password = get_login()
@@ -67,21 +68,11 @@ def show_login_info(service_name: str, username: str, success=bool):
     rows = [
         ["Service Name", service_name],
         ["Username", username],
+        ["Successful Login", success],
     ]
 
-    if success is not None:
-        check_color = fg.GREEN if success else fg.RED
-        rows.append(["Successful Login", f"{check_color}{success}"])
+    table = Table(["Key", "Value"])
+    for row in rows:
+        table.add_row(row)
 
-    def format_cell(content, column: Column, row_idx, column_idx):
-        return (
-            Table.formatter(
-                string=content,
-                width=column["width"],
-                align=justifications[column["justify"]],
-                tcolor=f"{fg.WHITE}",
-            )
-            + " "
-        )
-
-    print(Table(["Key", "Value"], rows, format_cell=format_cell))
+    print(table)
