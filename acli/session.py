@@ -1,4 +1,3 @@
-from datetime import datetime
 from requests import Session, Response
 
 from arc import ExecutionError

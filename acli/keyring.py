@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 
-from keyring import get_password, set_password, delete_password
+from keyring import get_password, set_password
 from arc.errors import ExecutionError
 
 DEF_SERVICE = "aggietime"

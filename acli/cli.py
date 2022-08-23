@@ -1,14 +1,11 @@
 #!/bin/python
 from functools import reduce
-from os import environ
 
 import arc
-from arc import prompt, Context, logging, namespace, configure
+from arc import Context, namespace, configure
 from arc.types import State
 
 from arc.present.table import Table
-from arc.present.table import Column
-from arc.present.data import justifications
 from arc.color import fg, colorize
 
 from .session import ASession
