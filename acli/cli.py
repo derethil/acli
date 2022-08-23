@@ -16,7 +16,7 @@ from .parser import ParseHTML
 from .config import BASE_URL
 from .utils import format_time
 
-configure(environment="development", brand_color=fg.WHITE)
+configure(environment="production", brand_color=fg.WHITE)
 
 from .login import login
 
@@ -107,10 +107,9 @@ def shifts(ctx: Context, state: ACLIState):
             ]
         )
 
-    print(table)
+    table.add_row([])
+    table.add_row(["", "", format_time(total)])
 
-    table = Table(["Total"])
-    table.add_row([format_time(total)])
     print(table)
 
 
